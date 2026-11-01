@@ -59,6 +59,75 @@
     updateBar();
   }
 
+  /* --- Высота шапки в CSS-переменную (для прилипающих блоков) --- */
+  var header = document.querySelector('.site-header');
+  if (header) {
+    var setHeaderHeight = function () {
+      document.documentElement.style.setProperty(
+        '--header-h', Math.round(header.getBoundingClientRect().height) + 'px'
+      );
+    };
+    setHeaderHeight();
+    window.addEventListener('resize', setHeaderHeight);
+  }
+
+  /* --- Поиск по странице терминов --- */
+  var glossInput = document.getElementById('gloss-q');
+  if (glossInput) {
+    var items = Array.prototype.slice.call(document.querySelectorAll('.gloss__item'));
+    var groups = Array.prototype.slice.call(document.querySelectorAll('.gloss-group'));
+    var index = document.querySelector('.gloss-index');
+    var counter = document.getElementById('gloss-count');
+    var empty = document.querySelector('.gloss-empty');
+    var total = items.length;
+
+    var plural = function (n) {
+      var d10 = n % 10, d100 = n % 100;
+      if (d10 === 1 && d100 !== 11) { return 'термин'; }
+      if (d10 >= 2 && d10 <= 4 && (d100 < 12 || d100 > 14)) { return 'термина'; }
+      return 'терминов';
+    };
+
+    var filter = function () {
+      var q = glossInput.value.trim().toLowerCase().replace(/ё/g, 'е');
+      var shown = 0;
+
+      items.forEach(function (item) {
+        var hit = !q || item.dataset.s.indexOf(q) !== -1;
+        item.hidden = !hit;
+        if (hit) { shown++; }
+      });
+
+      // группа скрывается, если в ней ничего не осталось
+      groups.forEach(function (g) {
+        var any = Array.prototype.some.call(
+          g.querySelectorAll('.gloss__item'),
+          function (i) { return !i.hidden; }
+        );
+        g.hidden = !any;
+      });
+
+      if (index) { index.hidden = !!q; }
+      if (empty) { empty.hidden = shown !== 0; }
+      if (counter) {
+        counter.textContent = q
+          ? 'Найдено ' + shown + ' ' + plural(shown) + ' из ' + total
+          : 'Показано ' + total + ' из ' + total;
+      }
+    };
+
+    glossInput.addEventListener('input', filter);
+    glossInput.addEventListener('search', filter);
+    // Esc очищает поле
+    glossInput.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && glossInput.value) {
+        glossInput.value = '';
+        filter();
+      }
+    });
+    filter();
+  }
+
   /* --- Подсветка активного пункта оглавления --- */
   var tocLinks = Array.prototype.slice.call(document.querySelectorAll('.toc a[href^="#"]'));
   if (tocLinks.length) {
