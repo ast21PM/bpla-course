@@ -1,0 +1,538 @@
+<!doctype html>
+<html lang="ru" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Урок 4. Питание — Внутреннее устройство БПЛА</title>
+<meta name="description" content="Аккумуляторы дрона: Li-Po и Li-ion, что означает 4S, ёмкость в мАч, токоотдача C, балансировка и правила безопасного обращения.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%2314171C'/><g stroke='%23B6B49F' stroke-width='2.4' fill='none'><circle cx='9' cy='9' r='4'/><circle cx='23' cy='9' r='4'/><circle cx='9' cy='23' r='4'/><circle cx='23' cy='23' r='4'/><path d='M12 12l8 8M20 12l-8 8'/></g></svg>">
+</head>
+<body>
+
+<header class="site-header">
+  <nav class="nav">
+    <a class="nav__brand" href="../index.html">
+      <svg viewBox="0 0 32 32" fill="none" aria-hidden="true">
+        <circle cx="8" cy="8" r="4.5" stroke="#B6B49F" stroke-width="2"/>
+        <circle cx="24" cy="8" r="4.5" stroke="#B6B49F" stroke-width="2"/>
+        <circle cx="8" cy="24" r="4.5" stroke="#B6B49F" stroke-width="2"/>
+        <circle cx="24" cy="24" r="4.5" stroke="#B6B49F" stroke-width="2"/>
+        <path d="M11 11l10 10M21 11L11 21" stroke="#B6B49F" stroke-width="2"/>
+        <rect x="13" y="13" width="6" height="6" rx="1.5" fill="#B6B49F"/>
+      </svg>
+      Устройство БПЛА
+    </a>
+    <button class="nav__toggle" aria-expanded="false">Меню</button>
+    <ul class="nav__links">
+      <li><a href="../index.html">Главная</a></li>
+      <li><a href="urok1.html">1 · Основы</a></li>
+      <li><a href="urok2.html">2 · Состав</a></li>
+      <li><a href="urok3.html">3 · Силовая</a></li>
+      <li><a href="urok4.html" aria-current="page">4 · Питание</a></li>
+      <li><a href="urok5.html">5 · Управление</a></li>
+      <li><a href="urok6.html">6 · Видео</a></li>
+      <li><a href="urok7.html">7 · Контроллер</a></li>
+      <li><a href="../sources.html">Источники</a></li>
+    </ul>
+  </nav>
+</header>
+
+<div class="lesson-head">
+  <div class="wrap">
+    <span class="eyebrow">Урок 4 из 7</span>
+    <h1 style="margin-bottom:.25em">Питание</h1>
+    <p class="lead" style="max-width:720px;margin:0">
+      Аккумуляторы дрона: из чего они собраны, что означают надписи
+      на упаковке и как обращаться с ними безопасно.
+    </p>
+  </div>
+</div>
+
+<div class="wrap lesson-layout">
+
+  <aside class="toc">
+    <div class="toc__title">Содержание</div>
+    <ol>
+      <li><a href="#goal">Цель урока</a></li>
+      <li><a href="#why">Почему батарея так важна</a></li>
+      <li><a href="#chem">Li-Po и Li-ion</a></li>
+      <li><a href="#s">Что означает 4S</a></li>
+      <li><a href="#voltage">Напряжение банки</a></li>
+      <li><a href="#capacity">Ёмкость</a></li>
+      <li><a href="#crate">Токоотдача</a></li>
+      <li><a href="#balance">Балансировка</a></li>
+      <li><a href="#bec">Питание электроники</a></li>
+      <li><a href="#safety">Безопасность</a></li>
+      <li><a href="#examples">Разбор примеров</a></li>
+      <li><a href="#questions">Вопросы для ответа</a></li>
+      <li><a href="#video">Видео к уроку</a></li>
+      <li><a href="#test">Проверка знаний</a></li>
+    </ol>
+  </aside>
+
+  <article class="lesson-body">
+
+    <h2 id="goal" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Цель урока</h2>
+    <div class="goal">
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/>
+        <circle cx="12" cy="12" r="4.5" stroke="currentColor" stroke-width="2"/>
+        <circle cx="12" cy="12" r="1.3" fill="currentColor"/>
+      </svg>
+      <p>
+        <b>Цель урока</b>
+        Уметь читать маркировку аккумулятора, понимать смысл параметров S, мАч и C
+        и знать правила безопасного обращения с литиевыми батареями.
+      </p>
+    </div>
+
+    <h2 id="why">Почему батарея так важна</h2>
+
+    <p>
+      Аккумулятор — единственный источник энергии на борту. От него напрямую зависит
+      главная характеристика аппарата: сколько он продержится в воздухе.
+      При этом батарея обычно оказывается одной из самых тяжёлых деталей —
+      на небольших дронах это пятая часть взлётного веса и больше.
+    </p>
+
+    <p>
+      Отсюда вечный компромисс. Поставить батарею побольше — вырастет запас энергии,
+      но и вес. Моторам придётся работать интенсивнее, чтобы поднять эту массу,
+      и выигрыш частично съедается. Для каждого аппарата есть оптимум,
+      и подбирают его опытным путём.
+    </p>
+
+    <p>
+      Кроме того, аккумулятор — <strong>расходник</strong>. Он стареет от каждого цикла
+      заряда и разряда, и именно он требует самого аккуратного обращения
+      из всех узлов дрона.
+    </p>
+
+    <h2 id="chem">Li-Po и Li-ion</h2>
+
+    <p>
+      На дронах применяют литиевые аккумуляторы — они хранят больше всего энергии
+      на единицу массы. Встречаются два типа.
+    </p>
+
+    <dl class="term">
+      <dt>Li-Po — литий-полимерный</dt>
+      <dd>Плоские мягкие пакеты. Главное достоинство — способность отдавать очень большой ток. Это стандарт для аппаратов, которым нужна динамика.</dd>
+    </dl>
+
+    <dl class="term">
+      <dt>Li-ion — литий-ионный</dt>
+      <dd>Цилиндрические банки в металлическом корпусе, те же, что в ноутбуках и электросамокатах. Запасают больше энергии на грамм, живут дольше, но отдают ток куда скромнее.</dd>
+    </dl>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Параметр</th><th>Li-Po</th><th>Li-ion</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Отдача тока</strong></td><td>очень высокая</td><td>умеренная</td></tr>
+          <tr><td><strong>Запас энергии на грамм</strong></td><td>меньше</td><td>больше</td></tr>
+          <tr><td><strong>Срок службы</strong></td><td>сотни циклов</td><td>дольше</td></tr>
+          <tr><td><strong>Форма</strong></td><td>плоский пакет</td><td>цилиндры</td></tr>
+          <tr><td><strong>Где применяют</strong></td><td>динамичные полёты, манёвры</td><td>долгие спокойные полёты</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>
+      Выбор определяется задачей. Нужна резкая динамика и мгновенный отклик —
+      берут Li-Po. Нужно продержаться в воздухе как можно дольше, а манёвры плавные —
+      выигрывает Li-ion.
+    </p>
+
+    <h2 id="s">Что означает 4S</h2>
+
+    <p>
+      На каждом аккумуляторе написано что-то вроде <strong>4S</strong> или
+      <strong>6S</strong>. Буква S — от английского <i>series</i>, «последовательно»,
+      а цифра — число <strong>банок</strong> (отдельных элементов) внутри.
+    </p>
+
+    <p>
+      Одна литиевая банка выдаёт около 3,7 вольта — для моторов дрона этого мало.
+      Поэтому банки соединяют последовательно, и их напряжения складываются.
+    </p>
+
+    <figure>
+      <svg viewBox="0 0 820 230" role="img" aria-labelledby="sTitle">
+        <title id="sTitle">Четыре банки по 3,7 вольта, соединённые последовательно, дают 14,8 вольта</title>
+
+        <g>
+          <rect x="40" y="56" width="120" height="76" rx="7" fill="none" stroke="#B6B49F" stroke-width="2"/>
+          <text x="100" y="92" text-anchor="middle" fill="#EFEEE4" font-family="Manrope,sans-serif" font-size="17" font-weight="800">3,7 В</text>
+          <text x="100" y="115" text-anchor="middle" fill="#818576" font-family="Manrope,sans-serif" font-size="13">банка 1</text>
+        </g>
+        <text x="180" y="101" text-anchor="middle" fill="#818576" font-family="Manrope,sans-serif" font-size="22" font-weight="700">+</text>
+        <g>
+          <rect x="200" y="56" width="120" height="76" rx="7" fill="none" stroke="#B6B49F" stroke-width="2"/>
+          <text x="260" y="92" text-anchor="middle" fill="#EFEEE4" font-family="Manrope,sans-serif" font-size="17" font-weight="800">3,7 В</text>
+          <text x="260" y="115" text-anchor="middle" fill="#818576" font-family="Manrope,sans-serif" font-size="13">банка 2</text>
+        </g>
+        <text x="340" y="101" text-anchor="middle" fill="#818576" font-family="Manrope,sans-serif" font-size="22" font-weight="700">+</text>
+        <g>
+          <rect x="360" y="56" width="120" height="76" rx="7" fill="none" stroke="#B6B49F" stroke-width="2"/>
+          <text x="420" y="92" text-anchor="middle" fill="#EFEEE4" font-family="Manrope,sans-serif" font-size="17" font-weight="800">3,7 В</text>
+          <text x="420" y="115" text-anchor="middle" fill="#818576" font-family="Manrope,sans-serif" font-size="13">банка 3</text>
+        </g>
+        <text x="500" y="101" text-anchor="middle" fill="#818576" font-family="Manrope,sans-serif" font-size="22" font-weight="700">+</text>
+        <g>
+          <rect x="520" y="56" width="120" height="76" rx="7" fill="none" stroke="#B6B49F" stroke-width="2"/>
+          <text x="580" y="92" text-anchor="middle" fill="#EFEEE4" font-family="Manrope,sans-serif" font-size="17" font-weight="800">3,7 В</text>
+          <text x="580" y="115" text-anchor="middle" fill="#818576" font-family="Manrope,sans-serif" font-size="13">банка 4</text>
+        </g>
+        <text x="662" y="101" text-anchor="middle" fill="#818576" font-family="Manrope,sans-serif" font-size="22" font-weight="700">=</text>
+        <g>
+          <rect x="684" y="46" width="112" height="96" rx="7" fill="none" stroke="#EFEEE4" stroke-width="2.6"/>
+          <text x="740" y="88" text-anchor="middle" fill="#EFEEE4" font-family="Manrope,sans-serif" font-size="19" font-weight="800">14,8 В</text>
+          <text x="740" y="112" text-anchor="middle" fill="#818576" font-family="Manrope,sans-serif" font-size="13">батарея 4S</text>
+        </g>
+
+        <text x="410" y="186" text-anchor="middle" fill="#818576" font-family="Manrope,sans-serif" font-size="14">Четыре банки последовательно: напряжения складываются, ёмкость остаётся прежней</text>
+      </svg>
+      <figcaption>Схема 1. Как из отдельных банок получается батарея 4S</figcaption>
+    </figure>
+
+    <p>
+      Получаем простое правило: <strong>умножьте число перед S на 3,7</strong> —
+      это и есть номинальное напряжение батареи.
+    </p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Обозначение</th><th>Банок</th><th>Номинальное напряжение</th><th>Полностью заряжена</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>1S</strong></td><td>1</td><td>3,7 В</td><td>4,2 В</td></tr>
+          <tr><td><strong>2S</strong></td><td>2</td><td>7,4 В</td><td>8,4 В</td></tr>
+          <tr><td><strong>4S</strong></td><td>4</td><td>14,8 В</td><td>16,8 В</td></tr>
+          <tr><td><strong>6S</strong></td><td>6</td><td>22,2 В</td><td>25,2 В</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>
+      Напряжение важно потому, что от него зависят обороты моторов. Вспомните
+      параметр KV из урока 3: обороты равны KV, умноженному на напряжение.
+      Поставив вместо 4S батарею 6S, вы заметно поднимете обороты — и вместе с ними
+      ток, нагрев и нагрузку на всю силовую установку.
+    </p>
+
+    <div class="note note--warn">
+      <span class="note__label">Важно</span>
+      <p>
+        Количество банок нельзя менять произвольно. Регуляторы, полётный контроллер
+        и видеопередатчик рассчитаны на определённый диапазон напряжения.
+        Батарея с лишними банками способна вывести из строя всю электронику сразу.
+      </p>
+    </div>
+
+    <h2 id="voltage">Напряжение банки</h2>
+
+    <p>
+      Номинальные 3,7 вольта — это среднее значение. Реальное напряжение банки
+      меняется по мере разряда, и за ним нужно следить: именно оно показывает,
+      сколько заряда осталось.
+    </p>
+
+    <figure>
+      <svg viewBox="0 0 820 200" role="img" aria-labelledby="vTitle">
+        <title id="vTitle">Шкала напряжения одной литиевой банки от разряженного до заряженного состояния</title>
+
+        <!-- шкала -->
+        <rect x="60" y="70" width="700" height="34" rx="6" fill="none" stroke="#37403F" stroke-width="2"/>
+        <line x1="235" y1="70" x2="235" y2="104" stroke="#545E56" stroke-width="2"/>
+        <line x1="410" y1="70" x2="410" y2="104" stroke="#545E56" stroke-width="2"/>
+        <line x1="585" y1="70" x2="585" y2="104" stroke="#545E56" stroke-width="2"/>
+
+        <text x="147" y="93" text-anchor="middle" fill="#818576" font-family="Manrope,sans-serif" font-size="14" font-weight="700">опасно</text>
+        <text x="322" y="93" text-anchor="middle" fill="#D5D3C2" font-family="Manrope,sans-serif" font-size="14" font-weight="700">пора садиться</text>
+        <text x="497" y="93" text-anchor="middle" fill="#EFEEE4" font-family="Manrope,sans-serif" font-size="14" font-weight="700">рабочая зона</text>
+        <text x="672" y="93" text-anchor="middle" fill="#D5D3C2" font-family="Manrope,sans-serif" font-size="14" font-weight="700">заряжена</text>
+
+        <!-- подписи значений -->
+        <text x="235" y="132" text-anchor="middle" fill="#818576" font-family="JetBrains Mono,monospace" font-size="14">3,3 В</text>
+        <text x="410" y="132" text-anchor="middle" fill="#818576" font-family="JetBrains Mono,monospace" font-size="14">3,5 В</text>
+        <text x="585" y="132" text-anchor="middle" fill="#818576" font-family="JetBrains Mono,monospace" font-size="14">3,8 В</text>
+        <text x="760" y="132" text-anchor="middle" fill="#818576" font-family="JetBrains Mono,monospace" font-size="14">4,2 В</text>
+
+        <text x="60" y="48" fill="#818576" font-family="Manrope,sans-serif" font-size="14">Напряжение одной банки</text>
+        <text x="410" y="172" text-anchor="middle" fill="#818576" font-family="Manrope,sans-serif" font-size="13">Значения ориентировочные: точные пределы указывает производитель батареи</text>
+      </svg>
+      <figcaption>Схема 2. Зоны напряжения одной литиевой банки</figcaption>
+    </figure>
+
+    <p>
+      Полностью заряженная банка показывает около <strong>4,2 вольта</strong>.
+      Основная часть полёта проходит в диапазоне примерно от 4,2 до 3,5 вольта.
+      Когда напряжение приближается к <strong>3,5 вольта</strong>, полёт пора
+      завершать. Разряд ниже <strong>3,3 вольта</strong> необратимо повреждает банку:
+      ёмкость падает, а батарея может вздуться.
+    </p>
+
+    <p>
+      Полётный контроллер умеет следить за напряжением и предупреждать пилота —
+      писать сообщение на экран или подавать сигнал. Это одна из самых полезных
+      функций на борту.
+    </p>
+
+    <h2 id="capacity">Ёмкость</h2>
+
+    <p>
+      <strong>Ёмкость</strong> показывает, сколько энергии запасено в батарее.
+      Измеряется в миллиампер-часах (мАч). Батарея на 1500 мАч теоретически
+      способна отдавать ток 1500 миллиампер в течение часа — или, что для дрона
+      ближе к реальности, 15 ампер в течение шести минут.
+    </p>
+
+    <p>
+      Чем больше ёмкость, тем дольше полёт. Но ёмкость неразрывно связана с весом:
+      батарея вдвое большей ёмкости весит примерно вдвое больше. Начиная с какого-то
+      момента дополнительный вес начинает съедать весь выигрыш — моторам приходится
+      тратить больше энергии просто на то, чтобы поднять саму батарею.
+    </p>
+
+    <h2 id="crate">Токоотдача</h2>
+
+    <p>
+      Третий параметр на упаковке — число с буквой C, например <strong>75C</strong>.
+      Это <strong>токоотдача</strong>: насколько быстро батарея способна отдавать
+      запасённую энергию.
+    </p>
+
+    <dl class="term">
+      <dt>Как считать</dt>
+      <dd>
+        Максимальный ток = значение C × ёмкость в ампер-часах.
+        Для батареи 1500 мАч (это 1,5 Ач) с маркировкой 75C получаем
+        75 × 1,5 = <b>112,5 ампера</b>.
+      </dd>
+    </dl>
+
+    <p>
+      Параметр критичен потому, что в момент резкого манёвра четыре мотора
+      разом требуют огромный ток. Если батарея не способна его отдать,
+      напряжение резко проседает. Последствия неприятные: падает тяга,
+      контроллер может решить, что батарея разряжена, а в худшем случае
+      электроника перезагружается прямо в полёте.
+    </p>
+
+    <div class="note">
+      <span class="note__label">Осторожно с цифрами</span>
+      <p>
+        Значение C на упаковке — маркетинговое и часто завышено. Реальная отдача
+        у недорогих батарей оказывается ниже заявленной. Ориентируйтесь на запас:
+        батарея должна быть рассчитана с избытком относительно расчётного тока.
+      </p>
+    </div>
+
+    <h2 id="balance">Балансировка</h2>
+
+    <p>
+      У многобаночной батареи два разъёма: толстый силовой и тонкий
+      <strong>балансировочный</strong> с несколькими проводками.
+      Через второй зарядное устройство видит напряжение <strong>каждой банки
+      по отдельности</strong>.
+    </p>
+
+    <p>
+      Это нужно потому, что банки разряжаются и стареют не совсем одинаково.
+      Со временем одна начинает отставать: батарея в целом показывает нормальное
+      напряжение, а внутри одна банка уже глубоко разряжена. Такой перекос
+      быстро убивает аккумулятор.
+    </p>
+
+    <p>
+      Балансировочная зарядка подтягивает отстающие банки, выравнивая напряжения.
+      Поэтому литиевые батареи заряжают только специальным зарядным устройством
+      с балансиром, а не «любым подходящим по разъёму».
+    </p>
+
+    <h2 id="bec">Питание электроники</h2>
+
+    <p>
+      Как упоминалось в уроке 2, напряжение батареи подходит моторам, но не электронике.
+      Полётному контроллеру, приёмнику и камере нужно стабильные 5 вольт,
+      а не скачущие 16,8.
+    </p>
+
+    <p>
+      Поэтому в схеме есть <strong>стабилизатор напряжения</strong>. Он понижает
+      напряжение батареи до нужного и удерживает его постоянным независимо от того,
+      заряжена батарея или почти села. На современных сборках стабилизатор встроен
+      в плату регуляторов или в сам полётный контроллер.
+    </p>
+
+    <h2 id="safety">Безопасность</h2>
+
+    <p>
+      Литиевые аккумуляторы запасают много энергии в малом объёме, и при нарушении
+      правил эта энергия может выделиться сразу. Повреждённая или перезаряженная
+      батарея способна воспламениться. Правила несложные, но соблюдать их нужно всегда.
+    </p>
+
+    <ul>
+      <li><strong>Не разряжайте ниже предела.</strong> Завершайте полёт, не дожидаясь, пока напряжение упадёт в опасную зону.</li>
+      <li><strong>Заряжайте только балансирным зарядным устройством</strong> и выставляйте на нём правильное число банок.</li>
+      <li><strong>Не оставляйте заряжающуюся батарею без присмотра</strong> и не заряжайте ночью.</li>
+      <li><strong>Заряжайте в несгораемой ёмкости</strong> — специальном пакете или металлическом ящике, вдали от бумаги и ткани.</li>
+      <li><strong>Вздувшуюся, проколотую или деформированную батарею не используют и не заряжают.</strong> Её сдают в пункт приёма.</li>
+      <li><strong>Не оставляйте батарею полностью заряженной надолго.</strong> Для хранения её приводят примерно к 3,8 вольта на банку — у зарядных устройств для этого есть отдельный режим.</li>
+      <li><strong>Избегайте жары и мороза.</strong> На холоде батарея отдаёт заметно меньше, на жаре быстрее деградирует.</li>
+    </ul>
+
+    <div class="note note--warn">
+      <span class="note__label">Главное правило</span>
+      <p>
+        Аккумулятор — единственная деталь дрона, которая может быть опасна
+        сама по себе, даже когда аппарат выключен и лежит на полке.
+        Относитесь к нему внимательнее, чем к остальной электронике.
+      </p>
+    </div>
+
+    <h2 id="examples">Разбор примеров</h2>
+
+    <div class="example">
+      <div class="example__head">Пример 1 · Читаем маркировку</div>
+      <p>
+        <b>Условие.</b> На батарее написано: <b>4S 1500 mAh 75C</b>.
+        Что это значит?
+      </p>
+      <p>
+        <b>Разбор.</b> «4S» — четыре банки последовательно, номинальное напряжение
+        4 × 3,7 = 14,8 вольта, полностью заряженная 4 × 4,2 = 16,8 вольта.
+        «1500 mAh» — ёмкость 1,5 ампер-часа. «75C» — максимальный ток
+        75 × 1,5 = 112,5 ампера.
+      </p>
+      <p>
+        <b>Ответ.</b> Батарея на 14,8 В с запасом 1,5 Ач, способная кратковременно
+        отдавать порядка 112 ампер. Типичный вариант для пятидюймового аппарата.
+      </p>
+    </div>
+
+    <div class="example">
+      <div class="example__head">Пример 2 · Почему проседает тяга</div>
+      <p>
+        <b>Условие.</b> При резком добавлении газа аппарат на мгновение «проваливается»,
+        а на экране мелькает предупреждение о низком напряжении — хотя батарея
+        заряжена лишь наполовину.
+      </p>
+      <p>
+        <b>Рассуждение.</b> Резкий газ означает, что четыре мотора разом потребовали
+        большой ток. Если батарея не способна его отдать, её напряжение проседает —
+        и контроллер видит это как разряд.
+      </p>
+      <p>
+        <b>Ответ.</b> Батарее не хватает токоотдачи: либо значение C занижено
+        относительно потребностей аппарата, либо батарея состарилась и потеряла
+        способность отдавать ток. Нужен аккумулятор с большей реальной отдачей.
+      </p>
+    </div>
+
+    <h2 id="questions">Вопросы для ответа</h2>
+
+    <p>Ответьте на вопросы своими словами, и только потом сверьтесь с подсказкой.</p>
+
+    <ol class="qa">
+      <li>
+        <p>Почему нельзя просто поставить батарею вдвое большей ёмкости,
+        чтобы дрон летал вдвое дольше?</p>
+        <details class="answer"><summary><span></span></summary>
+          <div class="answer__body">
+            <p>Потому что ёмкость связана с весом: батарея вдвое большей ёмкости весит
+            примерно вдвое больше. Этот дополнительный вес приходится поднимать тем же
+            моторам, и они начинают потреблять больше энергии. Часть выигрыша съедается,
+            а после некоторого предела время полёта вообще перестаёт расти.</p>
+          </div>
+        </details>
+      </li>
+      <li>
+        <p>Зачем у батареи отдельный тонкий разъём с несколькими проводками,
+        если силовой разъём уже есть?</p>
+        <details class="answer"><summary><span></span></summary>
+          <div class="answer__body">
+            <p>Это балансировочный разъём. Через него зарядное устройство видит
+            напряжение каждой банки по отдельности и выравнивает их при зарядке.
+            Без этого одна отстающая банка может оказаться глубоко разряженной,
+            хотя батарея в целом показывает нормальное напряжение, — и быстро выйдет из строя.</p>
+          </div>
+        </details>
+      </li>
+      <li>
+        <p>Что произойдёт, если на аппарат, рассчитанный на 4S, поставить батарею 6S?</p>
+        <details class="answer"><summary><span></span></summary>
+          <div class="answer__body">
+            <p>Напряжение вырастет с 16,8 до 25,2 вольта в заряженном состоянии.
+            Обороты моторов подскочат вместе с током и нагревом, а регуляторы,
+            полётный контроллер и видеопередатчик получат напряжение выше расчётного.
+            Наиболее вероятный исход — выход электроники из строя сразу при подключении.</p>
+          </div>
+        </details>
+      </li>
+    </ol>
+
+    <h2 id="video">Видео к уроку</h2>
+
+    <p>
+      Видео показывает разные типы аккумуляторов вживую и подробно разбирает
+      их параметры и правила обращения.
+    </p>
+
+    <div class="video">
+      <iframe
+        src="https://rutube.ru/play/embed/7a2dd32e393e976ec72d217079ba6711/"
+        title="Аккумуляторы для дрона — видео к уроку"
+        allow="clipboard-write; autoplay"
+        allowfullscreen></iframe>
+    </div>
+    <p style="font-size:14px;color:var(--text-faint)">
+      Источник: канал «Школа БПЛА &laquo;Октагон&raquo;», урок «Аккумуляторы».
+    </p>
+
+    <h2 id="test">Проверка знаний</h2>
+
+    <div class="quiz-cta">
+      <h3>Тест по уроку 4</h3>
+      <p>
+        15 вопросов с одним вариантом ответа по материалу урока.
+        В начале теста укажите фамилию, имя и группу. Проверка автоматическая,
+        рекомендуемый результат — не менее 12 правильных ответов из 15.
+      </p>
+      <div>
+        <a class="btn btn--primary" href="https://docs.google.com/forms/d/e/1FAIpQLSd2NLlBo57aUXFDIlzz6q5YfAeUvL6O_VngozC_D42Xuhvjtw/viewform" target="_blank" rel="noopener">
+          Открыть тест
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M5 12h14m-6-6 6 6-6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+
+    <nav class="lesson-nav">
+      <a href="urok3.html"><span>Предыдущий урок</span><b>3 · Силовая установка</b></a>
+      <a href="urok5.html"><span>Следующий урок</span><b>5 · Пульт и приёмник</b></a>
+    </nav>
+
+  </article>
+</div>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <span>Учебное пособие «Внутреннее устройство БПЛА»</span>
+    <span><a href="../sources.html">Источники и литература</a></span>
+  </div>
+</footer>
+
+<script src="../assets/main.js"></script>
+</body>
+</html>

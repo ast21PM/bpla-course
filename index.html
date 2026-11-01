@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="ru" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Внутреннее устройство БПЛА — учебное пособие</title>
+<meta name="description" content="Учебное пособие для начинающих: что такое беспилотник, из чего он состоит и как работает каждый его узел. Семь уроков с конспектами, схемами, видео и тестами.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%2314171C'/><g stroke='%23B6B49F' stroke-width='2.4' fill='none'><circle cx='9' cy='9' r='4'/><circle cx='23' cy='9' r='4'/><circle cx='9' cy='23' r='4'/><circle cx='23' cy='23' r='4'/><path d='M12 12l8 8M20 12l-8 8'/></g></svg>">
+</head>
+<body>
+
+<header class="site-header">
+  <nav class="nav">
+    <a class="nav__brand" href="index.html">
+      <svg viewBox="0 0 32 32" fill="none" aria-hidden="true">
+        <circle cx="8" cy="8" r="4.5" stroke="#B6B49F" stroke-width="2"/>
+        <circle cx="24" cy="8" r="4.5" stroke="#B6B49F" stroke-width="2"/>
+        <circle cx="8" cy="24" r="4.5" stroke="#B6B49F" stroke-width="2"/>
+        <circle cx="24" cy="24" r="4.5" stroke="#B6B49F" stroke-width="2"/>
+        <path d="M11 11l10 10M21 11L11 21" stroke="#B6B49F" stroke-width="2"/>
+        <rect x="13" y="13" width="6" height="6" rx="1.5" fill="#B6B49F"/>
+      </svg>
+      Устройство БПЛА
+    </a>
+    <button class="nav__toggle" aria-expanded="false">Меню</button>
+    <ul class="nav__links">
+      <li><a href="index.html" aria-current="page">Главная</a></li>
+      <li><a href="lessons/urok1.html">1 · Основы</a></li>
+      <li><a href="lessons/urok2.html">2 · Состав</a></li>
+      <li><a href="lessons/urok3.html">3 · Силовая</a></li>
+      <li><a href="lessons/urok4.html">4 · Питание</a></li>
+      <li><a href="lessons/urok5.html">5 · Управление</a></li>
+      <li><a href="lessons/urok6.html">6 · Видео</a></li>
+      <li><a href="lessons/urok7.html">7 · Контроллер</a></li>
+      <li><a href="sources.html">Источники</a></li>
+    </ul>
+  </nav>
+</header>
+
+<main>
+
+  <!-- ============ Герой ============ -->
+  <section class="hero">
+    <div class="wrap hero__inner">
+      <span class="eyebrow">Беспилотные авиационные системы · базовый курс</span>
+      <h1>Внутреннее устройство БПЛА</h1>
+      <p class="lead">
+        Пособие для тех, кто не разбирается в дронах совсем. За семь уроков разберём,
+        что такое беспилотник, из каких узлов он собран и за что отвечает каждый из них —
+        от пропеллера до полётного контроллера.
+      </p>
+      <div class="hero__actions">
+        <a class="btn btn--primary" href="lessons/urok1.html">
+          Начать с урока 1
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M5 12h14m-6-6 6 6-6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
+        <a class="btn btn--ghost" href="#route">Посмотреть программу</a>
+      </div>
+      <p class="stats">
+        <span><b>7</b> уроков</span>
+        <span><b>Видео</b> к каждой теме</span>
+        <span><b>Тесты</b> с автопроверкой</span>
+        <span><b>0</b> подготовки нужно</span>
+      </p>
+    </div>
+  </section>
+
+  <!-- ============ Программа ============ -->
+  <section class="section section--alt" id="route">
+    <div class="wrap">
+      <h2>Программа курса</h2>
+      <p class="lead" style="max-width:660px;margin-bottom:34px">
+        Уроки идут строго по порядку: каждый следующий опирается на предыдущий.
+        Начинайте с первого, даже если вам кажется, что общие вещи вы уже знаете.
+      </p>
+
+      <ul class="cards">
+        <li class="card">
+          <span class="card__num">УРОК 01</span>
+          <h3 class="card__title"><a href="lessons/urok1.html">Что такое БПЛА</a></h3>
+          <p class="card__desc">Определение беспилотника, виды по конструкции и по назначению, зачем они нужны и где применяются.</p>
+        </li>
+        <li class="card">
+          <span class="card__num">УРОК 02</span>
+          <h3 class="card__title"><a href="lessons/urok2.html">Из чего состоит дрон</a></h3>
+          <p class="card__desc">Обзорная карта всех узлов: что где стоит, как связано между собой и зачем нужно.</p>
+        </li>
+        <li class="card">
+          <span class="card__num">УРОК 03</span>
+          <h3 class="card__title"><a href="lessons/urok3.html">Силовая установка</a></h3>
+          <p class="card__desc">Рама, моторы, пропеллеры и регуляторы. Почему винты крутятся в разные стороны.</p>
+        </li>
+        <li class="card">
+          <span class="card__num">УРОК 04</span>
+          <h3 class="card__title"><a href="lessons/urok4.html">Питание</a></h3>
+          <p class="card__desc">Аккумуляторы Li-Po и Li-ion, что значит «4S», ёмкость, токоотдача и правила безопасности.</p>
+        </li>
+        <li class="card">
+          <span class="card__num">УРОК 05</span>
+          <h3 class="card__title"><a href="lessons/urok5.html">Пульт и приёмник</a></h3>
+          <p class="card__desc">Как команда пилота доходит до дрона: стики, каналы, привязка и поведение при потере связи.</p>
+        </li>
+        <li class="card">
+          <span class="card__num">УРОК 06</span>
+          <h3 class="card__title"><a href="lessons/urok6.html">Видеотракт</a></h3>
+          <p class="card__desc">Камера, видеопередатчик и очки пилота. Второй радиоканал и почему картинка пропадает у земли.</p>
+        </li>
+        <li class="card">
+          <span class="card__num">УРОК 07</span>
+          <h3 class="card__title"><a href="lessons/urok7.html">Полётный контроллер</a></h3>
+          <p class="card__desc">«Мозг» дрона: датчики, стабилизация, режимы полёта и что такое арминг.</p>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ============ Как заниматься ============ -->
+  <section class="section">
+    <div class="wrap" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:48px">
+      <div>
+        <h2>Как заниматься</h2>
+        <ol class="steps">
+          <li>Откройте урок и прочитайте конспект целиком, не перескакивая через разделы.</li>
+          <li>Посмотрите видео по теме — оно закрепляет прочитанное и показывает «живое» железо.</li>
+          <li>Разберите примеры и ответьте себе на вопросы в конце урока.</li>
+          <li>Пройдите тест: укажите фамилию, имя и группу, затем ответьте на все вопросы.</li>
+        </ol>
+      </div>
+      <div>
+        <h2>Проверьте себя</h2>
+        <p>
+          К каждому уроку есть тест из 10–15 вопросов с одним вариантом ответа.
+          Все вопросы составлены строго по материалу урока и по видео —
+          ничего, о чём не говорилось, в тесте не будет.
+        </p>
+        <p>
+          Ответы проверяются автоматически. Рекомендуемый результат —
+          не менее 80% правильных ответов. Если ошиблись, вернитесь к конспекту
+          и пройдите тест ещё раз.
+        </p>
+        <p style="color:var(--text-faint);font-size:15px">
+          Фамилия, имя и группа сохраняются вместе с ответами, чтобы преподаватель
+          видел индивидуальный результат.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ Что понадобится ============ -->
+  <section class="section section--alt">
+    <div class="wrap" style="max-width:760px">
+      <h2>Что понадобится</h2>
+      <p>
+        Специального оборудования не нужно: пособие рассчитано на чтение.
+        Достаточно компьютера или телефона с интернетом — для видео и тестов.
+      </p>
+      <p>
+        Предварительных знаний тоже не требуется. Все термины объясняются
+        при первом появлении, а физика и электроника даются на уровне
+        «что это делает и зачем», без формул из вузовского курса.
+      </p>
+      <div class="note note--warn">
+        <span class="note__label">Важно</span>
+        <p>
+          Пособие — теоретическое. Оно объясняет устройство аппаратов, но не является
+          инструкцией по сборке, настройке или эксплуатации. Полёты беспилотников
+          регулируются законом: перед любым практическим запуском изучите действующие
+          правила вашей страны и требования к регистрации аппарата.
+        </p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <span>Учебное пособие «Внутреннее устройство БПЛА»</span>
+    <span><a href="sources.html">Источники и литература</a></span>
+  </div>
+</footer>
+
+<script src="assets/main.js"></script>
+</body>
+</html>

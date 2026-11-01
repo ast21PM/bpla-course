@@ -1,0 +1,604 @@
+<!doctype html>
+<html lang="ru" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Урок 2. Из чего состоит дрон — Внутреннее устройство БПЛА</title>
+<meta name="description" content="Обзорная карта узлов беспилотника: рама, моторы, регуляторы, аккумулятор, полётный контроллер, приёмник и видеотракт. Как всё соединено и что происходит при движении стика.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%2314171C'/><g stroke='%23B6B49F' stroke-width='2.4' fill='none'><circle cx='9' cy='9' r='4'/><circle cx='23' cy='9' r='4'/><circle cx='9' cy='23' r='4'/><circle cx='23' cy='23' r='4'/><path d='M12 12l8 8M20 12l-8 8'/></g></svg>">
+</head>
+<body>
+
+<header class="site-header">
+  <nav class="nav">
+    <a class="nav__brand" href="../index.html">
+      <svg viewBox="0 0 32 32" fill="none" aria-hidden="true">
+        <circle cx="8" cy="8" r="4.5" stroke="#B6B49F" stroke-width="2"/>
+        <circle cx="24" cy="8" r="4.5" stroke="#B6B49F" stroke-width="2"/>
+        <circle cx="8" cy="24" r="4.5" stroke="#B6B49F" stroke-width="2"/>
+        <circle cx="24" cy="24" r="4.5" stroke="#B6B49F" stroke-width="2"/>
+        <path d="M11 11l10 10M21 11L11 21" stroke="#B6B49F" stroke-width="2"/>
+        <rect x="13" y="13" width="6" height="6" rx="1.5" fill="#B6B49F"/>
+      </svg>
+      Устройство БПЛА
+    </a>
+    <button class="nav__toggle" aria-expanded="false">Меню</button>
+    <ul class="nav__links">
+      <li><a href="../index.html">Главная</a></li>
+      <li><a href="urok1.html">1 · Основы</a></li>
+      <li><a href="urok2.html" aria-current="page">2 · Состав</a></li>
+      <li><a href="urok3.html">3 · Силовая</a></li>
+      <li><a href="urok4.html">4 · Питание</a></li>
+      <li><a href="urok5.html">5 · Управление</a></li>
+      <li><a href="urok6.html">6 · Видео</a></li>
+      <li><a href="urok7.html">7 · Контроллер</a></li>
+      <li><a href="../sources.html">Источники</a></li>
+    </ul>
+  </nav>
+</header>
+
+<div class="lesson-head">
+  <div class="wrap">
+    <span class="eyebrow">Урок 2 из 7</span>
+    <h1 style="margin-bottom:.25em">Из чего состоит дрон</h1>
+    <p class="lead" style="max-width:720px;margin:0">
+      Обзорная карта всех узлов: что где стоит, за что отвечает
+      и как детали связаны между собой.
+    </p>
+  </div>
+</div>
+
+<div class="wrap lesson-layout">
+
+  <aside class="toc">
+    <div class="toc__title">Содержание</div>
+    <ol>
+      <li><a href="#goal">Цель урока</a></li>
+      <li><a href="#subsystems">Пять подсистем</a></li>
+      <li><a href="#frame">Рама</a></li>
+      <li><a href="#power">Силовая установка</a></li>
+      <li><a href="#battery">Питание</a></li>
+      <li><a href="#fc">Полётный контроллер</a></li>
+      <li><a href="#rx">Приёмник</a></li>
+      <li><a href="#video-path">Видеотракт</a></li>
+      <li><a href="#payload">Полезная нагрузка</a></li>
+      <li><a href="#wiring">Как всё соединено</a></li>
+      <li><a href="#chain">Что происходит при движении стика</a></li>
+      <li><a href="#examples">Разбор примеров</a></li>
+      <li><a href="#questions">Вопросы для ответа</a></li>
+      <li><a href="#video">Видео к уроку</a></li>
+      <li><a href="#test">Проверка знаний</a></li>
+    </ol>
+  </aside>
+
+  <article class="lesson-body">
+
+    <h2 id="goal" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Цель урока</h2>
+    <div class="goal">
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/>
+        <circle cx="12" cy="12" r="4.5" stroke="currentColor" stroke-width="2"/>
+        <circle cx="12" cy="12" r="1.3" fill="currentColor"/>
+      </svg>
+      <p>
+        <b>Цель урока</b>
+        Знать основные узлы беспилотника, понимать назначение каждого
+        и уметь проследить, как команда пилота превращается во вращение моторов.
+      </p>
+    </div>
+
+    <h2 id="subsystems">Пять подсистем</h2>
+
+    <p>
+      На первый взгляд дрон — это запутанный клубок проводов и плат. На самом деле
+      любой беспилотник, от игрушечного до промышленного, раскладывается
+      на <strong>пять подсистем</strong>. Если держать их в голове, назначение
+      любой детали становится понятным сразу.
+    </p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Подсистема</th><th>Что в неё входит</th><th>Зачем</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Конструкция</strong></td>
+            <td>Рама, лучи, защита</td>
+            <td>Держит всё остальное</td>
+          </tr>
+          <tr>
+            <td><strong>Силовая установка</strong></td>
+            <td>Моторы, пропеллеры, регуляторы</td>
+            <td>Создаёт тягу</td>
+          </tr>
+          <tr>
+            <td><strong>Питание</strong></td>
+            <td>Аккумулятор, разводка питания</td>
+            <td>Даёт энергию всему аппарату</td>
+          </tr>
+          <tr>
+            <td><strong>Управление</strong></td>
+            <td>Полётный контроллер, датчики, приёмник</td>
+            <td>Принимает решения и держит аппарат в воздухе</td>
+          </tr>
+          <tr>
+            <td><strong>Полезная нагрузка</strong></td>
+            <td>Камера, видеопередатчик, датчики, груз</td>
+            <td>Выполняет задачу, ради которой дрон и летит</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="note">
+      <span class="note__label">Как пользоваться</span>
+      <p>
+        Встретив незнакомую деталь, задайте себе два вопроса: к какой из пяти
+        подсистем она относится и что будет, если её убрать. Этого почти всегда
+        достаточно, чтобы понять её роль.
+      </p>
+    </div>
+
+    <h2 id="frame">Рама</h2>
+
+    <p>
+      <strong>Рама</strong> — несущая конструкция, скелет аппарата. К ней крепится
+      всё остальное: на концах лучей стоят моторы, в центре — электроника,
+      снизу или сверху — аккумулятор.
+    </p>
+
+    <p>
+      Главное требование к раме — быть жёсткой и при этом лёгкой. Каждый лишний
+      грамм рамы — это грамм, который не достанется полезной нагрузке или
+      аккумулятору. Поэтому рамы делают из углепластика (карбона), реже
+      из стеклотекстолита или пластика.
+    </p>
+
+    <p>
+      Размер рамы принято указывать по диагонали между осями моторов — в миллиметрах
+      или в дюймах по размеру подходящих пропеллеров. Фраза «пятидюймовый дрон»
+      означает не размер аппарата целиком, а размер его винтов.
+    </p>
+
+    <h2 id="power">Силовая установка</h2>
+
+    <p>
+      Эта подсистема превращает электричество в тягу. В неё входят три типа деталей,
+      причём работают они всегда в связке.
+    </p>
+
+    <dl class="term">
+      <dt>Мотор</dt>
+      <dd>Вращает пропеллер. В современных дронах применяются бесколлекторные моторы — надёжные и мощные при малом весе.</dd>
+    </dl>
+
+    <dl class="term">
+      <dt>Пропеллер (винт)</dt>
+      <dd>Отбрасывает воздух вниз и за счёт этого создаёт подъёмную силу. Именно винт, а не мотор, непосредственно поднимает аппарат.</dd>
+    </dl>
+
+    <dl class="term">
+      <dt>Регулятор оборотов (ESC)</dt>
+      <dd>Электронная плата между аккумулятором и мотором. Принимает от полётного контроллера команду «столько-то оборотов» и подаёт на мотор ток нужной формы.</dd>
+    </dl>
+
+    <p>
+      Регулятор обязателен: бесколлекторным мотором нельзя управлять, просто подавая
+      на него напряжение. Обмотки надо переключать в строгой последовательности
+      и с нужной частотой — этим и занимается ESC. На каждый мотор нужен свой
+      регулятор, поэтому у квадрокоптера их четыре. Часто все четыре собраны
+      на одной плате — такую сборку называют <strong>4-в-1</strong>.
+    </p>
+
+    <p>
+      Подробно силовая установка разбирается в уроке 3.
+    </p>
+
+    <h2 id="battery">Питание</h2>
+
+    <p>
+      <strong>Аккумулятор</strong> — источник энергии для всего аппарата.
+      На современных дронах это литий-полимерные (Li-Po) или литий-ионные (Li-ion)
+      батареи: они отдают много энергии на единицу веса.
+    </p>
+
+    <p>
+      От аккумулятора питание расходится по потребителям. За это отвечает
+      <strong>плата распределения питания</strong> (её обозначают PDB).
+      На современных сборках её функции чаще всего встроены прямо
+      в плату регуляторов 4-в-1.
+    </p>
+
+    <p>
+      Важная деталь: моторам нужно высокое напряжение аккумулятора целиком,
+      а электронике — низкое и стабильное. Поэтому в схеме всегда есть
+      <strong>стабилизатор напряжения</strong>, который понижает напряжение
+      батареи до 5 вольт для контроллера, приёмника и камеры.
+    </p>
+
+    <p>
+      Подробно питание разбирается в уроке 4.
+    </p>
+
+    <h2 id="fc">Полётный контроллер</h2>
+
+    <p>
+      <strong>Полётный контроллер</strong> — небольшая плата в центре аппарата,
+      его вычислительный центр. На ней стоят микроконтроллер и датчики положения:
+      <strong>гироскоп</strong> измеряет скорость поворота аппарата,
+      <strong>акселерометр</strong> — направление ускорения, то есть где «низ».
+    </p>
+
+    <p>
+      Контроллер работает в непрерывном цикле: опрашивает датчики, сравнивает
+      реальное положение аппарата с тем, которое запросил пилот, и подбирает обороты
+      для каждого мотора так, чтобы разница исчезла. Этот цикл повторяется
+      тысячи раз в секунду — быстрее, чем способен реагировать человек.
+    </p>
+
+    <p>
+      Именно поэтому мультикоптер вообще может летать. Сам по себе он неустойчив:
+      без постоянной подстройки оборотов он завалился бы на бок в первые доли секунды.
+    </p>
+
+    <p>
+      Подробно полётный контроллер разбирается в уроке 7.
+    </p>
+
+    <h2 id="rx">Приёмник</h2>
+
+    <p>
+      <strong>Приёмник</strong> (RX) — маленькая плата с антенной, которая принимает
+      радиосигнал от пульта. Она не управляет моторами напрямую: её задача — получить
+      положения стиков и переключателей и передать их полётному контроллеру
+      в виде чисел.
+    </p>
+
+    <p>
+      Приёмник всегда работает в паре со своим <strong>передатчиком</strong> (TX),
+      который находится в пульте. Пара должна быть одного стандарта и предварительно
+      «познакомлена» друг с другом — эта процедура называется привязкой.
+    </p>
+
+    <p>
+      Подробно канал управления разбирается в уроке 5.
+    </p>
+
+    <h2 id="video-path">Видеотракт</h2>
+
+    <p>
+      Если пилот управляет аппаратом по картинке, на борту появляется ещё одна цепочка
+      деталей — <strong>видеотракт</strong>. Он состоит из камеры, видеопередатчика
+      и антенны.
+    </p>
+
+    <p>
+      Ключевой момент, который чаще всего путают новички: это
+      <strong>отдельный радиоканал</strong>, никак не связанный с каналом управления.
+      У них разные частоты, разные антенны и разная судьба. Картинка может пропасть,
+      а управление при этом продолжит работать — и наоборот.
+    </p>
+
+    <figure>
+      <svg viewBox="0 0 820 190" role="img" aria-labelledby="twoLinksTitle">
+        <title id="twoLinksTitle">Два независимых радиоканала: канал управления и видеоканал</title>
+
+        <!-- канал управления -->
+        <rect x="24" y="24" width="150" height="48" rx="7" fill="none" stroke="#B6B49F" stroke-width="2"/>
+        <text x="99" y="54" text-anchor="middle" fill="#D5D3C2" font-family="Manrope,sans-serif" font-size="15" font-weight="700">Пульт</text>
+        <path d="M182 48 H300" stroke="#B6B49F" stroke-width="2" stroke-dasharray="8 6" marker-end="url(#arrU2)"/>
+        <text x="241" y="36" text-anchor="middle" fill="#818576" font-family="Manrope,sans-serif" font-size="13">команды</text>
+        <rect x="310" y="24" width="160" height="48" rx="7" fill="none" stroke="#B6B49F" stroke-width="2"/>
+        <text x="390" y="54" text-anchor="middle" fill="#D5D3C2" font-family="Manrope,sans-serif" font-size="15" font-weight="700">Приёмник</text>
+        <path d="M478 48 H596" stroke="#B6B49F" stroke-width="2" marker-end="url(#arrU2)"/>
+        <rect x="606" y="24" width="190" height="48" rx="7" fill="none" stroke="#B6B49F" stroke-width="2"/>
+        <text x="701" y="54" text-anchor="middle" fill="#D5D3C2" font-family="Manrope,sans-serif" font-size="15" font-weight="700">Полётный контроллер</text>
+        <text x="24" y="92" fill="#818576" font-family="Manrope,sans-serif" font-size="13">Канал управления</text>
+
+        <!-- видеоканал -->
+        <rect x="24" y="118" width="150" height="48" rx="7" fill="none" stroke="#818576" stroke-width="2"/>
+        <text x="99" y="148" text-anchor="middle" fill="#D5D3C2" font-family="Manrope,sans-serif" font-size="15" font-weight="700">Камера</text>
+        <path d="M182 142 H300" stroke="#818576" stroke-width="2" marker-end="url(#arrD2)"/>
+        <rect x="310" y="118" width="160" height="48" rx="7" fill="none" stroke="#818576" stroke-width="2"/>
+        <text x="390" y="148" text-anchor="middle" fill="#D5D3C2" font-family="Manrope,sans-serif" font-size="15" font-weight="700">Видеопередатчик</text>
+        <path d="M478 142 H596" stroke="#818576" stroke-width="2" stroke-dasharray="8 6" marker-end="url(#arrD2)"/>
+        <text x="537" y="130" text-anchor="middle" fill="#818576" font-family="Manrope,sans-serif" font-size="13">видео</text>
+        <rect x="606" y="118" width="190" height="48" rx="7" fill="none" stroke="#818576" stroke-width="2"/>
+        <text x="701" y="148" text-anchor="middle" fill="#D5D3C2" font-family="Manrope,sans-serif" font-size="15" font-weight="700">Очки или экран</text>
+        <text x="24" y="186" fill="#818576" font-family="Manrope,sans-serif" font-size="13">Видеоканал</text>
+
+        <defs>
+          <marker id="arrU2" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+            <path d="M0 0l9 4.5L0 9z" fill="#B6B49F"/>
+          </marker>
+          <marker id="arrD2" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+            <path d="M0 0l9 4.5L0 9z" fill="#818576"/>
+          </marker>
+        </defs>
+      </svg>
+      <figcaption>Схема 1. Два независимых радиоканала: команды идут вверх, картинка — вниз</figcaption>
+    </figure>
+
+    <p>
+      Подробно видеотракт разбирается в уроке 6.
+    </p>
+
+    <h2 id="payload">Полезная нагрузка</h2>
+
+    <p>
+      <strong>Полезная нагрузка</strong> — всё, что аппарат несёт ради задачи,
+      а не ради полёта. Снимите её — дрон продолжит летать, но станет бесполезным.
+    </p>
+
+    <ul>
+      <li>фото- и видеокамера, часто на стабилизирующем подвесе;</li>
+      <li>тепловизор для поиска людей и осмотра техники;</li>
+      <li>специальные камеры для оценки состояния посевов;</li>
+      <li>лазерный дальномер или сканер для построения карт;</li>
+      <li>сбрасываемый груз или ёмкость с жидкостью.</li>
+    </ul>
+
+    <div class="note">
+      <span class="note__label">Не путайте</span>
+      <p>
+        Камера видеотракта и камера полезной нагрузки — обычно разные камеры.
+        Первая нужна пилоту, чтобы вести аппарат: картинка у неё низкого качества,
+        зато передаётся мгновенно. Вторая снимает то, ради чего был вылет:
+        качество высокое, запись идёт на карту памяти.
+      </p>
+    </div>
+
+    <h2 id="wiring">Как всё соединено</h2>
+
+    <p>
+      Теперь соберём узлы в одну картину. Удобно различать два типа связей:
+      по одним течёт <strong>энергия</strong>, по другим идёт <strong>информация</strong>.
+    </p>
+
+    <figure>
+      <svg viewBox="0 0 860 430" role="img" aria-labelledby="wiringTitle">
+        <title id="wiringTitle">Схема соединений узлов беспилотника: питание и сигналы</title>
+
+        <!-- верхняя цепочка -->
+        <rect x="20" y="40" width="150" height="54" rx="7" fill="none" stroke="#B6B49F" stroke-width="2"/>
+        <text x="95" y="73" text-anchor="middle" fill="#D5D3C2" font-family="Manrope,sans-serif" font-size="15" font-weight="700">Приёмник</text>
+
+        <path d="M178 67 H246" stroke="#818576" stroke-width="2" stroke-dasharray="7 5" marker-end="url(#arrS)"/>
+
+        <rect x="256" y="34" width="170" height="66" rx="7" fill="none" stroke="#B6B49F" stroke-width="2.4"/>
+        <text x="341" y="62" text-anchor="middle" fill="#EFEEE4" font-family="Manrope,sans-serif" font-size="15" font-weight="800">Полётный</text>
+        <text x="341" y="82" text-anchor="middle" fill="#EFEEE4" font-family="Manrope,sans-serif" font-size="15" font-weight="800">контроллер</text>
+
+        <path d="M434 67 H502" stroke="#818576" stroke-width="2" stroke-dasharray="7 5" marker-end="url(#arrS)"/>
+
+        <rect x="512" y="40" width="150" height="54" rx="7" fill="none" stroke="#B6B49F" stroke-width="2"/>
+        <text x="587" y="73" text-anchor="middle" fill="#D5D3C2" font-family="Manrope,sans-serif" font-size="15" font-weight="700">Регуляторы</text>
+
+        <path d="M670 67 H726" stroke="#B6B49F" stroke-width="2.6" marker-end="url(#arrP)"/>
+
+        <rect x="736" y="40" width="104" height="54" rx="7" fill="none" stroke="#B6B49F" stroke-width="2"/>
+        <text x="788" y="63" text-anchor="middle" fill="#D5D3C2" font-family="Manrope,sans-serif" font-size="15" font-weight="700">Моторы</text>
+        <text x="788" y="82" text-anchor="middle" fill="#818576" font-family="Manrope,sans-serif" font-size="13">и винты</text>
+
+        <!-- аккумулятор -->
+        <rect x="256" y="196" width="170" height="60" rx="7" fill="none" stroke="#B6B49F" stroke-width="2.4"/>
+        <text x="341" y="232" text-anchor="middle" fill="#EFEEE4" font-family="Manrope,sans-serif" font-size="15" font-weight="800">Аккумулятор</text>
+
+        <!-- питание: аккумулятор -> контроллер -->
+        <path d="M341 190 V110" stroke="#B6B49F" stroke-width="2.6" marker-end="url(#arrP)"/>
+        <!-- питание: аккумулятор -> регуляторы -->
+        <path d="M434 226 H587 V110" stroke="#B6B49F" stroke-width="2.6" fill="none" marker-end="url(#arrP)"/>
+        <!-- питание: аккумулятор -> видеопередатчик -->
+        <path d="M341 262 V330" stroke="#B6B49F" stroke-width="2.6" fill="none" marker-end="url(#arrP)"/>
+
+        <!-- нижняя цепочка: видео -->
+        <rect x="20" y="340" width="150" height="54" rx="7" fill="none" stroke="#818576" stroke-width="2"/>
+        <text x="95" y="373" text-anchor="middle" fill="#D5D3C2" font-family="Manrope,sans-serif" font-size="15" font-weight="700">Камера</text>
+
+        <path d="M178 367 H246" stroke="#818576" stroke-width="2" stroke-dasharray="7 5" marker-end="url(#arrS)"/>
+
+        <rect x="256" y="340" width="190" height="54" rx="7" fill="none" stroke="#818576" stroke-width="2"/>
+        <text x="351" y="373" text-anchor="middle" fill="#D5D3C2" font-family="Manrope,sans-serif" font-size="15" font-weight="700">Видеопередатчик</text>
+
+        <path d="M454 367 H522" stroke="#818576" stroke-width="2" stroke-dasharray="7 5" marker-end="url(#arrS)"/>
+
+        <rect x="532" y="340" width="130" height="54" rx="7" fill="none" stroke="#818576" stroke-width="2"/>
+        <text x="597" y="373" text-anchor="middle" fill="#D5D3C2" font-family="Manrope,sans-serif" font-size="15" font-weight="700">Антенна</text>
+
+        <!-- легенда -->
+        <path d="M532 282 H576" stroke="#B6B49F" stroke-width="2.6"/>
+        <text x="586" y="287" fill="#818576" font-family="Manrope,sans-serif" font-size="13">питание</text>
+        <path d="M672 282 H716" stroke="#818576" stroke-width="2" stroke-dasharray="7 5"/>
+        <text x="726" y="287" fill="#818576" font-family="Manrope,sans-serif" font-size="13">сигнал</text>
+
+        <defs>
+          <marker id="arrP" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+            <path d="M0 0l9 4.5L0 9z" fill="#B6B49F"/>
+          </marker>
+          <marker id="arrS" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+            <path d="M0 0l9 4.5L0 9z" fill="#818576"/>
+          </marker>
+        </defs>
+      </svg>
+      <figcaption>Схема 2. Соединения узлов: сплошные линии — питание, пунктирные — сигналы</figcaption>
+    </figure>
+
+    <p>
+      Обратите внимание на две вещи. Во-первых, аккумулятор питает практически всё —
+      это единственный источник энергии на борту. Во-вторых, полётный контроллер
+      сам не питает моторы: он только отдаёт регуляторам команды, а ток на моторы
+      идёт напрямую от аккумулятора через регуляторы. Поэтому по тонкому сигнальному
+      проводу течёт информация, а по толстому силовому — большие токи.
+    </p>
+
+    <h2 id="chain">Что происходит при движении стика</h2>
+
+    <p>
+      Разберём один простой случай целиком: пилот хочет, чтобы аппарат
+      наклонился вперёд и полетел. Он двигает стик вперёд. Дальше события
+      происходят за доли секунды.
+    </p>
+
+    <ol>
+      <li>Пульт измеряет новое положение стика и кодирует его в число.</li>
+      <li>Передатчик пульта отправляет это число по радио.</li>
+      <li>Приёмник на борту принимает его и передаёт полётному контроллеру.</li>
+      <li>Контроллер понимает запрос как «наклонись вперёд на столько-то градусов».</li>
+      <li>Гироскоп и акселерометр сообщают контроллеру, как аппарат расположен сейчас.</li>
+      <li>Контроллер вычисляет разницу между желаемым и текущим положением.</li>
+      <li>Он решает: задним моторам нужно прибавить обороты, передним — убавить.</li>
+      <li>Команды уходят на регуляторы.</li>
+      <li>Регуляторы меняют ток в обмотках моторов, обороты меняются.</li>
+      <li>Задние винты дают больше тяги, аппарат наклоняется вперёд и начинает двигаться.</li>
+      <li>Датчики фиксируют новое положение — и цикл повторяется сначала.</li>
+    </ol>
+
+    <p>
+      Последний пункт — самый важный. Это не разовое действие, а непрерывная петля:
+      измерил, сравнил, подправил. Она крутится всё время, пока аппарат в воздухе,
+      и именно она удерживает его от падения.
+    </p>
+
+    <h2 id="examples">Разбор примеров</h2>
+
+    <div class="example">
+      <div class="example__head">Пример 1 · Почему нельзя обойтись без регулятора</div>
+      <p>
+        <b>Вопрос.</b> Полётный контроллер и так вычисляет нужные обороты.
+        Почему бы не подключить моторы прямо к нему?
+      </p>
+      <p>
+        <b>Рассуждение.</b> Во-первых, через моторы идут токи в десятки ампер —
+        тонкие дорожки платы контроллера такого не выдержат и сгорят. Во-вторых,
+        бесколлекторный мотор не крутится от простого подключения напряжения:
+        его обмотки нужно переключать в строгом порядке и с нужной частотой.
+      </p>
+      <p>
+        <b>Ответ.</b> Регулятор решает обе задачи: пропускает через себя большой ток
+        и формирует для мотора правильную последовательность переключений.
+        Контроллер при этом остаётся маломощной вычислительной платой.
+      </p>
+    </div>
+
+    <div class="example">
+      <div class="example__head">Пример 2 · Пропала картинка, управление работает</div>
+      <p>
+        <b>Условие.</b> Во время полёта у пилота погас экран, но аппарат продолжает
+        слушаться команд. Какие узлы под подозрением?
+      </p>
+      <p>
+        <b>Рассуждение.</b> Управление работает — значит, исправны пульт, приёмник,
+        полётный контроллер, регуляторы и моторы. Проблема в узлах, которые относятся
+        только к видеотракту.
+      </p>
+      <p>
+        <b>Ответ.</b> Под подозрением камера, видеопередатчик, его антенна,
+        питание видеотракта или приёмная сторона — очки либо экран. Этот пример
+        показывает, зачем держать в голове разделение на два независимых канала:
+        оно сразу сужает круг поиска.
+      </p>
+    </div>
+
+    <h2 id="questions">Вопросы для ответа</h2>
+
+    <p>Ответьте на вопросы своими словами, и только потом сверьтесь с подсказкой.</p>
+
+    <ol class="qa">
+      <li>
+        <p>Почему мультикоптер без работающего полётного контроллера не сможет летать,
+        даже если все моторы исправны?</p>
+        <details class="answer"><summary><span></span></summary>
+          <div class="answer__body">
+            <p>Мультикоптер сам по себе неустойчив: малейший перекос — и он заваливается
+            на бок. В воздухе его удерживает непрерывная подстройка оборотов каждого мотора
+            по показаниям гироскопа и акселерометра, которую выполняет контроллер
+            тысячи раз в секунду. Без него подправлять обороты некому.</p>
+          </div>
+        </details>
+      </li>
+      <li>
+        <p>Аппарат перестал реагировать на команды, но видео с камеры продолжает идти.
+        Какие узлы исправны наверняка и где искать неисправность?</p>
+        <details class="answer"><summary><span></span></summary>
+          <div class="answer__body">
+            <p>Раз видео идёт, значит, исправны аккумулятор, камера, видеопередатчик
+            и его антенна — питание на борту есть. Проблема в канале управления:
+            пульт, его передатчик, бортовой приёмник, их антенны или связь приёмника
+            с полётным контроллером.</p>
+          </div>
+        </details>
+      </li>
+      <li>
+        <p>Зачем в схеме нужен стабилизатор напряжения, если аккумулятор и так выдаёт питание?</p>
+        <details class="answer"><summary><span></span></summary>
+          <div class="answer__body">
+            <p>Потому что у потребителей разные требования. Моторам нужно полное напряжение
+            аккумулятора, а электронике — низкое и стабильное, обычно 5 вольт. Кроме того,
+            напряжение батареи падает по мере разряда и проседает под нагрузкой.
+            Стабилизатор выдаёт контроллеру, приёмнику и камере ровное питание независимо
+            от состояния аккумулятора.</p>
+          </div>
+        </details>
+      </li>
+    </ol>
+
+    <h2 id="video">Видео к уроку</h2>
+
+    <p>
+      Видео показывает те же узлы на реальном аппарате — полезно посмотреть
+      после конспекта, чтобы связать названия с внешним видом деталей.
+    </p>
+
+    <div class="video">
+      <iframe
+        src="https://rutube.ru/play/embed/3a0ae7de3df579c83fd990ced6aca812/"
+        title="Компонентная база FPV-дрона — видео к уроку"
+        allow="clipboard-write; autoplay"
+        allowfullscreen></iframe>
+    </div>
+    <p style="font-size:14px;color:var(--text-faint)">
+      Источник: канал «Школа БПЛА &laquo;Октагон&raquo;», урок «Компонентная база».
+    </p>
+
+    <h2 id="test">Проверка знаний</h2>
+
+    <div class="quiz-cta">
+      <h3>Тест по уроку 2</h3>
+      <p>
+        15 вопросов с одним вариантом ответа по материалу урока.
+        В начале теста укажите фамилию, имя и группу. Проверка автоматическая,
+        рекомендуемый результат — не менее 12 правильных ответов из 15.
+      </p>
+      <div>
+        <a class="btn btn--primary" href="https://docs.google.com/forms/d/e/1FAIpQLSdLlGAluyI9fDVr--xN_D5MITpyA8nzG3K03_hPeUPGRtZ2Tg/viewform" target="_blank" rel="noopener">
+          Открыть тест
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M5 12h14m-6-6 6 6-6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+
+    <nav class="lesson-nav">
+      <a href="urok1.html"><span>Предыдущий урок</span><b>1 · Что такое БПЛА</b></a>
+      <a href="urok3.html"><span>Следующий урок</span><b>3 · Силовая установка</b></a>
+    </nav>
+
+  </article>
+</div>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <span>Учебное пособие «Внутреннее устройство БПЛА»</span>
+    <span><a href="../sources.html">Источники и литература</a></span>
+  </div>
+</footer>
+
+<script src="../assets/main.js"></script>
+</body>
+</html>
