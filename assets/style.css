@@ -25,7 +25,7 @@
 
   /* Раскладка */
   --maxw: 1180px;
-  --readw: 760px;
+  --readw: 660px;
   --radius: 7px;
   --radius-sm: 6px;
 }
@@ -289,7 +289,7 @@ p { margin: 0 0 1.1em; }
 }
 
 @media (max-width: 1000px) {
-  .lesson-layout { grid-template-columns: 1fr; gap: 26px; }
+  .lesson-layout { grid-template-columns: minmax(0, 1fr); gap: 26px; }
   .toc { position: static !important; max-height: none !important; }
 }
 
@@ -605,3 +605,44 @@ figure.photo img {
 
 /* выравнивание высоты фото в сетке из двух колонок */
 .photos figure.photo img { max-height: 400px; object-fit: contain; }
+
+
+/* ---------- Сворачиваемое оглавление ---------- */
+
+.toc__box { margin: 0; }
+.toc__box > summary {
+  list-style: none;
+  cursor: default;
+}
+.toc__box > summary::-webkit-details-marker { display: none; }
+.toc__box > summary::marker { content: ""; }
+
+@media (max-width: 1000px) {
+  .toc { border-left: 0; padding-left: 0; }
+  .toc__box {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+  }
+  .toc__box > summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 16px;
+    margin: 0;
+    cursor: pointer;
+    user-select: none;
+    color: var(--text);
+  }
+  .toc__box > summary::after {
+    content: "+";
+    font-family: var(--mono);
+    font-size: 16px;
+    line-height: 1;
+    color: var(--text-faint);
+  }
+  .toc__box[open] > summary::after { content: "–"; }
+  .toc__box[open] > summary { border-bottom: 1px solid var(--border); }
+  .toc__box > ol { padding: 10px 16px 14px; }
+}
