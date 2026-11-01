@@ -13,6 +13,33 @@
     });
   }
 
+  /* --- Оглавление: на узких экранах свёрнуто --- */
+  var tocBox = document.querySelector('.toc__box');
+  if (tocBox) {
+    var collapseToc = function () {
+      // на десктопе всегда раскрыто, на мобильном — по умолчанию закрыто
+      if (window.matchMedia('(max-width: 1000px)').matches) {
+        if (!tocBox.dataset.touched) { tocBox.open = false; }
+      } else {
+        tocBox.open = true;
+      }
+    };
+    // запоминаем, что пользователь сам трогал оглавление
+    tocBox.addEventListener('toggle', function () {
+      if (window.matchMedia('(max-width: 1000px)').matches) {
+        tocBox.dataset.touched = '1';
+      }
+    });
+    // при переходе по ссылке оглавления на мобильном — сворачиваем обратно
+    tocBox.addEventListener('click', function (e) {
+      if (e.target.tagName === 'A' && window.matchMedia('(max-width: 1000px)').matches) {
+        tocBox.open = false;
+      }
+    });
+    collapseToc();
+    window.addEventListener('resize', collapseToc);
+  }
+
   /* --- Полоса прогресса чтения (только на страницах уроков) --- */
   var article = document.querySelector('.lesson-body');
   if (article) {
