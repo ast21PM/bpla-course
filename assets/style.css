@@ -246,6 +246,25 @@ p { margin: 0 0 1.1em; }
 .card--soon { opacity: .45; }
 .card--soon:hover { border-color: var(--border); background: var(--surface); }
 
+/* Заголовок раздела по центру */
+.section-head { text-align: center; margin-bottom: 34px; }
+.section-head h2 { margin-bottom: .5em; }
+.section-head .lead { max-width: 660px; margin: 0 auto; }
+
+/* Седьмая карточка остаётся одна в последнем ряду — ставим её по центру.
+   Колонок в сетке: 3 при ширине окна от 930px, 2 при 640-929px, 1 уже.
+   Правило срабатывает только когда карточек ровно семь. */
+@media (min-width: 930px) {
+  .cards > .card:nth-child(7):last-child { grid-column: 2; }
+}
+@media (min-width: 640px) and (max-width: 929px) {
+  .cards > .card:nth-child(7):last-child {
+    grid-column: 1 / -1;
+    justify-self: center;
+    width: calc((100% - 14px) / 2);
+  }
+}
+
 /* ---------- Нумерованные шаги ---------- */
 
 .steps { counter-reset: step; list-style: none; padding: 0; margin: 0; display: grid; gap: 14px; }
